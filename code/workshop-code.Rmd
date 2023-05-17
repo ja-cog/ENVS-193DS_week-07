@@ -8,7 +8,7 @@ put it in the global message when you make an R markdown for midterm
 message = false, eval = false, echo = false, warning = false
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
@@ -52,5 +52,69 @@ Lets try a model:
 maples_model <- lm(stem_dry_mass ~ stem_length, maples_data)
 
 maples_model
+```
+Check Assumptions:
+1.linear relationship netween variables: yes! (used exploratory data visualiazation to check that)
+
+2.independence of error: yes! (making assumption based on how data was collected)
+
+3.homoskedasticity of errors: yes! (making that decisionfrom residuals vs fitted plot/scale-location plots)
+
+4. normally distributed errors:yes! (looking at QQ plot of residuals)
+
+```{r checking_assumptions}
+par(mfrow = c(2, 2))
+plot(maples_model)
+```
+
+turn of 2x2 grid:
+
+```{r turning_off_the_grid}
+dev.off()
+```
+
+#Putting things together to communicate
+
+## model predictions
+
+```{r pulling_out_predictions}
+predictions <- ggpredict(maples_model, terms = "stem_length")
+
+
+```
+
+plot predictions:
+
+```{r plot_predictions}
+plot_predictions <- ggplot(data = maples_data, aes(x = stem_length, y = stem_dry_mass)) +
+  #first plot underlying data
+  geom_point() +
+  #plotting model predictions from "predictions" object using ggeffects
+  geom_line(data = predictions, aes(x = x, y = predicted), color = "blue", linewidth = 1) +
+  #plot the confidence interval around model estimates
+  geom_ribbon(data = predictions,aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), alpha = 0.2)
+
+plot_predictions
+
+```
+
+## create tables
+
+```{r model_summary_table}
+model_summary <- summary(maples_model)
+
+model_squares <- anova(maples_model)
+```
+
+making a table
+
+```{r}
+model_squares_table <- tidy(model_squares)|>
+  mutate(p.value = case_when(
+         p.value < 0.001 ~ "< 0.001"))|>
+  flextable()|>
+  set_header_labels(df = "Degrees of Freedom",
+                    sumsq = "Sum of Squares")
+model_squares_table
 ```
 
