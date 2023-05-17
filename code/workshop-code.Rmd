@@ -1,0 +1,56 @@
+---
+title: "workshop_7"
+author: "Jacob Coggshall"
+date: "2023-05-17"
+output: html_document
+---
+put it in the global message when you make an R markdown for midterm
+message = false, eval = false, echo = false, warning = false
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, warning = FALSE)
+```
+
+```{r}
+# should haves
+library(tidyverse)
+library(here)
+library(lterdatasampler)
+# would be nice to have
+library(performance)
+library(broom)
+library(flextable)
+library(ggeffects)
+library(car)
+library(naniar)
+```
+
+#Linear models
+
+how does stem length _predict_ stem dry mass?
+
+```{r filtering_data}
+maples_data <- hbr_maples|>
+  filter(year == 2003 & watershed == "Reference")
+```
+
+#Visualizing missing data:
+
+```{r missing_data_vis}
+gg_miss_var(maples_data)
+```
+
+Create an exploratory data visualization 
+
+```{r explore-data-vis}
+ggplot(data = maples_data, aes(x = stem_length, y = stem_dry_mass)) + geom_point()
+```
+
+Lets try a model:
+
+```{r linear-model-maples}
+maples_model <- lm(stem_dry_mass ~ stem_length, maples_data)
+
+maples_model
+```
+
